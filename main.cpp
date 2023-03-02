@@ -80,10 +80,10 @@ Timer* movTimer;
 //FTDI variables
 FT_HANDLE ftHandle;
 bool sensorsActive;
-int curtrstatus;
-int pasttrstatus;
-int curtentrstatus;
-int pasttentrstatus;
+int curtrialcounter;
+int pasttrialcounter;
+int trialcounterbit0;
+int trialcounterbit1;
 int newtrial;
 int probe1status, probe2status;
 
@@ -225,18 +225,40 @@ int main(int argc, char* args[])
 			if (sensorsActive) {
 				//read the four lines
 				bit = 1;
-				curtrstatus = Ftdi::GetFtdiBitBang(ftHandle, bit);
-				if (curtrstatus != pasttrstatus) {
-					//Target.trcounter++;
+				trialcounterbit0 = Ftdi::GetFtdiBitBang(ftHandle, bit);
+				//if (curtrstatus != pasttrstatus) {
+				//	//Target.trcounter++;
+				//	newtrial = 1;
+				//}
+
+				bit = 2;
+				trialcounterbit1 = Ftdi::GetFtdiBitBang(ftHandle, bit);
+				//if (curtentrstatus != pasttentrstatus) {
+				//	Target.tentrcounter++;
+				//
+				//}
+
+				if (trialcounterbit0 == 1 && trialcounterbit1 == 0) {
+					//counter = 1
+					curtrialcounter = 1;
+				}
+				else if (trialcounterbit0 == 0 && trialcounterbit1 == 1) {
+					//counter = 2
+					curtrialcounter = 2;
+				}
+				else if (trialcounterbit0 == 1 && trialcounterbit1 == 1) {
+					//counter = 3
+					curtrialcounter = 4;
+				}
+				else {//if (trialcounterbit0 == 0 && trialcounterbit1 == 0) {
+					//counter = 0
+					curtrialcounter = 0;
+				}
+				if (curtrialcounter != pasttrialcounter) {
 					newtrial = 1;
 				}
 
-				bit = 2;
-				curtentrstatus = Ftdi::GetFtdiBitBang(ftHandle, bit);
-				if (curtentrstatus != pasttentrstatus) {
-					Target.tentrcounter++;
 
-				}
 
 				bit = 3;
 				probe1status = Ftdi::GetFtdiBitBang(ftHandle, bit);
@@ -710,25 +732,33 @@ void game_update()
 			targCircler->Off();
 
 
-			if( newtrial == 1)
-			{
-				hoverTimer->Reset();
-				trialTimer->Reset();
-				
-				newtrial = 0;
+			//if( newtrial == 1)
+			//{
 
-				std::cerr << "Leaving IDLE state." << std::endl;
+			hoverTimer->Reset();
+			trialTimer->Reset();
 				
-				state = Starting;
-			}
+				//newtrial = 0;
+
+			Target.trial = 0;
+			std::stringstream texttn;
+			texttn << Target.trial + 1;  //CurTrial starts from 0, so we add 1 for convention.
+			trialnum = Image::ImageText(trialnum, texttn.str().c_str(), "arial.ttf", 12, textColor);
+			std::cerr << "Trial " << 1 << " started at " << SDL_GetTicks() << std::endl;
+
+
+			std::cerr << "Leaving IDLE state." << std::endl;
+				
+			state = Starting;
+			//}
 			break;
 		case Starting: 
-			/* Wait for probe flags to change
+			/* Wait for probe or trial flag to change
 			 */
 
 			//make sure newtrial flag stays off until some minimum time has elapsed to avoid mis-counts
-			if (trialTimer->Elapsed() < 500)
-				newtrial = 0;
+			//if (trialTimer->Elapsed() < 500)
+			//	newtrial = 0;
 
 			startCircle->On();
 			startCircle->SetColor(startColor);
@@ -736,20 +766,27 @@ void game_update()
 			targCircler->Off();
 
 			// check if probe flags are set, or if newtrial flag is set
+			//if probebit1 is set, that means that the trial is a probe trial
+			//if probebit2 is 0, the probe type is a reach-with-the-rhi-hand to the probe-hand
+			//if probebit2 is 1, the probe type is a reach-with-the-probe-hand to the rhi-hand
 			if (probe1status > 0) {
 				Target.probe1 = probe1status;
 				Target.probe2 = probe2status;
 
 				if (probe2status == 0) {
+					//show the probe position; the probe hand should not move from that spot
 					targCirclel->SetPos(curtr.xposl, curtr.yposl);
 					targCirclel->SetColor(targColorl);
 					targCirclel->On();
+
+					targCircler->SetPos(curtr.xposr, curtr.yposr);
 				}
 
 				if (probe2status == 1) {
+					//show the rhi position; the probe hand should reach to that spot
 					targCirclel->SetPos(curtr.xposl, curtr.yposl);
-					targCirclel->SetColor(targColorl);
-					targCirclel->On();
+					//targCirclel->SetColor(targColorl);
+					//targCirclel->On();
 
 					targCircler->SetPos(curtr.xposr, curtr.yposr);
 					targCircler->SetColor(targColorr);
@@ -762,13 +799,13 @@ void game_update()
 
 				startbeep->Play();
 
-				newtrial = 0;
+				//newtrial = 0;
 
 				std::cerr << "Leaving STARTING state to Active probe state." << std::endl;
 				state = Active;
 
 			}
-			else if (newtrial == 1) {
+			else if ((trialTimer->Elapsed() > 100) && (newtrial == 1)) {
 				//Target.trcounter++;
 				//Target.trial++;
 
@@ -800,8 +837,8 @@ void game_update()
 				targCircler->SetColor(targHitColor);
 			}
 
-			
-			if (newtrial == 1) {
+			//wait for the new trial flag
+			if ((trialTimer->Elapsed() > 100) && (newtrial == 1)) {
 				//Target.trcounter++;
 				//Target.trial++;
 
@@ -823,11 +860,19 @@ void game_update()
 			targCircler->Off();
 
 
-			if (trialTimer->Elapsed() > 500) {
+			if (trialTimer->Elapsed() > 100) {
 
 				newtrial = 0;
-				Target.trcounter++;
+				pasttrialcounter = curtrialcounter; //we now acknowledge the trial count update, so the newtrial flag can be unset
+				
+				Target.trcounter = curtrialcounter;
 				Target.trial++;
+
+				std::stringstream texttn;
+				texttn << Target.trial + 1;  //CurTrial starts from 0, so we add 1 for convention.
+				trialnum = Image::ImageText(trialnum, texttn.str().c_str(), "arial.ttf", 12, textColor);
+				std::cerr << "Trial " << Target.trial << " ended at " << SDL_GetTicks() << std::endl;
+
 
 				//if we have exceeded NTRIALS, quit
 				if (Target.trial >= NTRIALS)
