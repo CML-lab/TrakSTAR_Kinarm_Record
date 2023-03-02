@@ -16,23 +16,14 @@ struct TargetFrame
 	float tgtxr;
 	float tgtyr;
 
-	int trace;
-	int path;
-	int region;
-
 	int score;
 
 	int TrType;
 
-	float velmin;
-	float velmax;
-
 	int probe1, probe2;
-	int trcounter, tentrcounter;
+	int trcounter;
 	
 	char key;
-
-	int lat;
 
 };
 

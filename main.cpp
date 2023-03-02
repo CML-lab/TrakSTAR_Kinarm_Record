@@ -433,14 +433,16 @@ bool init()
 
 	
 
-	curtrstatus = 0;
-	pasttrstatus = -1;
+	curtrialcounter = -1;
+	pasttrialcounter = -1;
+	trialcounterbit0 = -1;
+	trialcounterbit1 = -1;
+	newtrial = 0;
+	trialcounterbit0 = -1;
+	trialcounterbit1 = -1;
+
 	Target.trcounter = 0;
 
-	curtentrstatus = 0;
-	pasttentrstatus = 0;
-	Target.tentrcounter = -1;
-	
 
 
 	startCircle = new Circle(curtr.startx, curtr.starty, START_RADIUS*2, startColor);
@@ -712,6 +714,7 @@ static void draw_screen()
 bool hitTargetl = false;
 bool hitTargetr = false;
 
+std::stringstream texttn;
 
 
 void game_update()
@@ -741,7 +744,6 @@ void game_update()
 				//newtrial = 0;
 
 			Target.trial = 0;
-			std::stringstream texttn;
 			texttn << Target.trial + 1;  //CurTrial starts from 0, so we add 1 for convention.
 			trialnum = Image::ImageText(trialnum, texttn.str().c_str(), "arial.ttf", 12, textColor);
 			std::cerr << "Trial " << 1 << " started at " << SDL_GetTicks() << std::endl;
@@ -868,7 +870,6 @@ void game_update()
 				Target.trcounter = curtrialcounter;
 				Target.trial++;
 
-				std::stringstream texttn;
 				texttn << Target.trial + 1;  //CurTrial starts from 0, so we add 1 for convention.
 				trialnum = Image::ImageText(trialnum, texttn.str().c_str(), "arial.ttf", 12, textColor);
 				std::cerr << "Trial " << Target.trial << " ended at " << SDL_GetTicks() << std::endl;

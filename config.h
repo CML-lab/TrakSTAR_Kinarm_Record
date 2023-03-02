@@ -64,9 +64,9 @@
 
 
  //target dimensions, meters - practice blocks
-#define START_RADIUS  0.006f
-#define TARGET_RADIUS  0.006f
-#define CURSOR_RADIUS  0.003f
+#define START_RADIUS  0.01f
+#define TARGET_RADIUS  0.01f
+#define CURSOR_RADIUS  0.005f
 
 
 //wait times
