@@ -22,6 +22,7 @@ struct TargetFrame
 
 	int probe1, probe2;
 	int trcounter;
+	int databit0, databit1, databit2, databit3;
 	
 	char key;
 

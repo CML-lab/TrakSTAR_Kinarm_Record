@@ -69,6 +69,10 @@ DataWriter::DataWriter(TrackSYSCONFIG *sysconfig, const char* filename)
 			 << "TargetYL "
 		     << "TargetXR "
 			 << "TargetYR "
+			 << "Data0 "
+			 << "Data1 "
+			 << "Data2 "
+			 << "Data3 "
 			 << endl;
 
 		file << "-----" << endl;  //flag designator for finding start of the data stream.  everything above is header
@@ -102,6 +106,10 @@ void DataWriter::Record(int deviceNo, TrackDATAFRAME frame, TargetFrame Target)
 			<< Target.tgtyl << " "
 			<< Target.tgtxr << " "
 			<< Target.tgtyr << " "
+			<< Target.databit0 << " "
+			<< Target.databit1 << " " 
+			<< Target.databit2 << " " 
+			<< Target.databit3 << " " 
 			<< endl;
 	}
 }

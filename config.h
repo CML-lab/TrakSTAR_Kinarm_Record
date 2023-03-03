@@ -56,7 +56,7 @@
 
 #define SCREEN_BPP  32
 //switch WINDOWED and MIRRORED for kinereach/simulation runs
-#define WINDOWED  false
+#define WINDOWED  true
 #define MIRRORED  false
 // screen ratio, in meters per pixel
 #define PHYSICAL_RATIO  (PHYSICAL_WIDTH / SCREEN_WIDTH)

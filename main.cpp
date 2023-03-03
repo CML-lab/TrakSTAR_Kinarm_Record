@@ -219,56 +219,58 @@ int main(int argc, char* args[])
 			quit = true;
 
 		// Get data from input devices
+		if (sensorsActive) {
+			//read the four lines
+			bit = 1;
+			trialcounterbit0 = Ftdi::GetFtdiBitBang(ftHandle, bit);
+			Target.databit0 = trialcounterbit0;
+			//if (curtrstatus != pasttrstatus) {
+			//	//Target.trcounter++;
+			//	newtrial = 1;
+			//}
+
+			bit = 2;
+			trialcounterbit1 = Ftdi::GetFtdiBitBang(ftHandle, bit);
+			Target.databit1 = trialcounterbit1;
+			//if (curtentrstatus != pasttentrstatus) {
+			//	Target.tentrcounter++;
+			//
+			//}
+
+			if (trialcounterbit0 == 1 && trialcounterbit1 == 0) {
+				//counter = 1
+				curtrialcounter = 1;
+			}
+			else if (trialcounterbit0 == 0 && trialcounterbit1 == 1) {
+				//counter = 2
+				curtrialcounter = 2;
+			}
+			else if (trialcounterbit0 == 1 && trialcounterbit1 == 1) {
+				//counter = 3
+				curtrialcounter = 3;
+			}
+			else {//if (trialcounterbit0 == 0 && trialcounterbit1 == 0) {
+				//counter = 0
+				curtrialcounter = 0;
+			}
+			if (curtrialcounter != pasttrialcounter) {
+				newtrial = 1;
+				inputs_updated++;
+			}
+
+			bit = 3;
+			probe1status = Ftdi::GetFtdiBitBang(ftHandle, bit);
+			//Target.probe1 = probe1status;
+			Target.databit2 = probe1status;
+
+			bit = 4;  //this is the CTS line
+			probe2status = Ftdi::GetFtdiBitBang(ftHandle, bit);
+			//Target.probe2 = probe2status;
+			Target.databit3 = probe2status;
+		}
+
 		if (inputs_updated > 0) // if there is a new frame of data
 		{
-
-			if (sensorsActive) {
-				//read the four lines
-				bit = 1;
-				trialcounterbit0 = Ftdi::GetFtdiBitBang(ftHandle, bit);
-				//if (curtrstatus != pasttrstatus) {
-				//	//Target.trcounter++;
-				//	newtrial = 1;
-				//}
-
-				bit = 2;
-				trialcounterbit1 = Ftdi::GetFtdiBitBang(ftHandle, bit);
-				//if (curtentrstatus != pasttentrstatus) {
-				//	Target.tentrcounter++;
-				//
-				//}
-
-				if (trialcounterbit0 == 1 && trialcounterbit1 == 0) {
-					//counter = 1
-					curtrialcounter = 1;
-				}
-				else if (trialcounterbit0 == 0 && trialcounterbit1 == 1) {
-					//counter = 2
-					curtrialcounter = 2;
-				}
-				else if (trialcounterbit0 == 1 && trialcounterbit1 == 1) {
-					//counter = 3
-					curtrialcounter = 4;
-				}
-				else {//if (trialcounterbit0 == 0 && trialcounterbit1 == 0) {
-					//counter = 0
-					curtrialcounter = 0;
-				}
-				if (curtrialcounter != pasttrialcounter) {
-					newtrial = 1;
-				}
-
-
-
-				bit = 3;
-				probe1status = Ftdi::GetFtdiBitBang(ftHandle, bit);
-				//Target.probe1 = probe1status;
-
-
-				bit = 4;  //this is the CTS line
-				probe2status = Ftdi::GetFtdiBitBang(ftHandle, bit);
-				//Target.probe2 = probe2status;
-			}
 
 			//updatedisplay = true;
 			for (int a = ((trackstatus>0) ? 1 : 0); a <= ((trackstatus>0) ? BIRDCOUNT : 0); a++)
@@ -526,6 +528,8 @@ bool init()
 	std::string savfile;
 	savfile.assign(fname);
 	savfile.insert(savfile.rfind("."), "_data");
+	//savfile.substr(0, savfile.rfind("."));
+	savfile.replace(savfile.rfind("."), 4, "");
 
 	std::strcpy(fname, savfile.c_str());
 
@@ -803,7 +807,9 @@ void game_update()
 
 				//newtrial = 0;
 
-				std::cerr << "Leaving STARTING state to Active probe state." << std::endl;
+				trialTimer->Reset();
+
+				std::cerr << "Leaving STARTING state to Active probe state at " << SDL_GetTicks() << std::endl;
 				state = Active;
 
 			}
@@ -815,7 +821,7 @@ void game_update()
 
 				trialTimer->Reset();
 
-				std::cerr << "Leaving STARTING state to Ending state." << std::endl;
+				std::cerr << "Leaving STARTING state to Ending state at " << SDL_GetTicks() << std::endl;
 				state = Ending;
 			}
 
@@ -848,7 +854,7 @@ void game_update()
 
 				trialTimer->Reset();
 
-				std::cerr << "Leaving ACTIVE state to Ending state." << std::endl;
+				std::cerr << "Leaving ACTIVE state to Ending state at " << SDL_GetTicks() << std::endl;
 				state = Ending;
 			}
 
@@ -885,7 +891,7 @@ void game_update()
 				else
 				{
 					hoverTimer->Reset();
-					std::cerr << "Leaving ACTIVE state to Starting state." << std::endl;
+					std::cerr << "Leaving ENDING state to Starting state at " << SDL_GetTicks() << std::endl;
 					state = Starting;
 				}
 			}
