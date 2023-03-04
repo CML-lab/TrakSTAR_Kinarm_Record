@@ -218,55 +218,57 @@ int main(int argc, char* args[])
 		if ((state == Finished) && (trialTimer->Elapsed() >= 10000))
 			quit = true;
 
-		// Get data from input devices
-		if (sensorsActive) {
-			//read the four lines
-			bit = 1;
-			trialcounterbit0 = Ftdi::GetFtdiBitBang(ftHandle, bit);
-			Target.databit0 = trialcounterbit0;
-			//if (curtrstatus != pasttrstatus) {
-			//	//Target.trcounter++;
-			//	newtrial = 1;
-			//}
+		// Get data from input FTDI device, synched to the data stream unless in mouse mode
+		if (inputs_updated > 0 || (trackstatus <= 0)) {
+			if (sensorsActive) {
+				//read the four lines
+				bit = 1;
+				trialcounterbit0 = Ftdi::GetFtdiBitBang(ftHandle, bit);
+				Target.databit0 = trialcounterbit0;
+				//if (curtrstatus != pasttrstatus) {
+				//	//Target.trcounter++;
+				//	newtrial = 1;
+				//}
 
-			bit = 2;
-			trialcounterbit1 = Ftdi::GetFtdiBitBang(ftHandle, bit);
-			Target.databit1 = trialcounterbit1;
-			//if (curtentrstatus != pasttentrstatus) {
-			//	Target.tentrcounter++;
-			//
-			//}
+				bit = 2;
+				trialcounterbit1 = Ftdi::GetFtdiBitBang(ftHandle, bit);
+				Target.databit1 = trialcounterbit1;
+				//if (curtentrstatus != pasttentrstatus) {
+				//	Target.tentrcounter++;
+				//
+				//}
 
-			if (trialcounterbit0 == 1 && trialcounterbit1 == 0) {
-				//counter = 1
-				curtrialcounter = 1;
-			}
-			else if (trialcounterbit0 == 0 && trialcounterbit1 == 1) {
-				//counter = 2
-				curtrialcounter = 2;
-			}
-			else if (trialcounterbit0 == 1 && trialcounterbit1 == 1) {
-				//counter = 3
-				curtrialcounter = 3;
-			}
-			else {//if (trialcounterbit0 == 0 && trialcounterbit1 == 0) {
-				//counter = 0
-				curtrialcounter = 0;
-			}
-			if (curtrialcounter != pasttrialcounter) {
-				newtrial = 1;
-				inputs_updated++;
-			}
+				if (trialcounterbit0 == 1 && trialcounterbit1 == 0) {
+					//counter = 1
+					curtrialcounter = 1;
+				}
+				else if (trialcounterbit0 == 0 && trialcounterbit1 == 1) {
+					//counter = 2
+					curtrialcounter = 2;
+				}
+				else if (trialcounterbit0 == 1 && trialcounterbit1 == 1) {
+					//counter = 3
+					curtrialcounter = 3;
+				}
+				else {//if (trialcounterbit0 == 0 && trialcounterbit1 == 0) {
+					//counter = 0
+					curtrialcounter = 0;
+				}
+				if (curtrialcounter != pasttrialcounter) {
+					newtrial = 1;
+					inputs_updated++;
+				}
 
-			bit = 3;
-			probe1status = Ftdi::GetFtdiBitBang(ftHandle, bit);
-			//Target.probe1 = probe1status;
-			Target.databit2 = probe1status;
+				bit = 3;
+				probe1status = Ftdi::GetFtdiBitBang(ftHandle, bit);
+				//Target.probe1 = probe1status;
+				Target.databit2 = probe1status;
 
-			bit = 4;  //this is the CTS line
-			probe2status = Ftdi::GetFtdiBitBang(ftHandle, bit);
-			//Target.probe2 = probe2status;
-			Target.databit3 = probe2status;
+				bit = 4;  //this is the CTS line
+				probe2status = Ftdi::GetFtdiBitBang(ftHandle, bit);
+				//Target.probe2 = probe2status;
+				Target.databit3 = probe2status;
+			}
 		}
 
 		if (inputs_updated > 0) // if there is a new frame of data
