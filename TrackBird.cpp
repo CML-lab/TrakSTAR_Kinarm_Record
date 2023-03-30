@@ -393,17 +393,17 @@ int TrackBird::GetUpdatedSample(TrackSYSCONFIG *sysconfig, TrackDATAFRAME DataBi
 				sampleUpdated++;
 
 				//Note, the way that the tracker is mounted requires a change of coordinate frames.  
-				//Tracker X = data Z
-				//Tracker Y = data X
-				//Tracker Z = data Y
+				//Tracker X = data y  %(toward the participant)
+				//Tracker Y = data X  %(transmitter's left, which is upsidedown so participant's right)
+				//Tracker Z = data Z  %(transmitter's down, which is participant's up)
 				//For angle, we will record just the angle matrix rather than the azimuth/elevation/roll, to avoid the reference-frame rotation problem
 				DataBirdFrame[j].time = bird_data[j-1].time;
 				DataBirdFrame[j].etime = bird_data[j-1].time-birds_start;
 				DataBirdFrame[j].x = bird_data[j-1].y;
-				DataBirdFrame[j].y = -bird_data[j-1].z;  //note, for the minireach setup this sign must be inverted since the transmitter is flipped.
-				DataBirdFrame[j].z = bird_data[j-1].x;
+				DataBirdFrame[j].y = bird_data[j-1].x;  //the display looks like y is flipped?
+				DataBirdFrame[j].z = bird_data[j-1].z;
 
-				for (k = 0; k < 3; k++)  //record the angle matrix
+				for (k = 0; k < 3; k++)  //record the angle matrix (coordinate frame not resolved!)
 					for (m = 0; m < 3; m++)
 					{
 						DataBirdFrame[j].anglematrix[k][m] = bird_data[j-1].s[k][m];

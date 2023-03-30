@@ -49,7 +49,7 @@
 #else
 
 	// Physical dimensions of the screen in meters
-	#define PHYSICAL_WIDTH  0.10784f
+	#define PHYSICAL_WIDTH  1.0784f
 	#define PHYSICAL_HEIGHT  0.6086f // meters
 
 #endif
