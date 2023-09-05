@@ -90,8 +90,8 @@
 #else
 
 	//TrakStar calibration 
-	#define CALxOFFSET 0.0f   //meters
-	#define CALyOFFSET 0.0f   //meters
+	#define CALxOFFSET 0.5392f   //meters
+	#define CALyOFFSET 0.1f   //meters
 	#define CALxyROTANG 0.0f  //radians
 
 #endif
